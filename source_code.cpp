@@ -29,7 +29,7 @@ struct Reservation{
 };
 
 // Function to save customers to a file
-void saveCustomersToFile(struct Customer customers[], int count) {
+void saveCustomersToFile(struct Customer *customers, int count) {
     FILE *file = fopen(CUSTOMER_FILE, "w");
     if(!file){
         printf("Error opening file for writing!\n");
@@ -41,14 +41,27 @@ void saveCustomersToFile(struct Customer customers[], int count) {
     fclose(file);
 }
 
+// Function to load customers from a file
+int loadCustomersFromFile(struct Customer *customers) {
+    FILE *file = fopen(CUSTOMER_FILE, "r");
+    if (!file) return 0;
+    
+    int count = 0;
+    while (fscanf(file, "%d %49s %14s %d", &customers[count].ID, customers[count].name, customers[count].phone, &customers[count].VIP)==4){
+        count++;
+    }
+    fclose(file);
+    return count;
+}
+
 // Function to add a new customer
-void addCustomer(struct Customer customers[], int *count){
+void addCustomer(struct Customer *customers, int *count){
     if (*count>=MAX_CUSTOMERS){
         printf("Customer list is full!\n");
         return;
     } 
     struct Customer newCustomer;
-    newCustomer.ID = *count + 1;
+    newCustomer.ID = (*count >0) ? customers[*count - 1].ID + 1 : 1;
     
     printf("Enter customer name: ");
     scanf("%49s", newCustomer.name);
@@ -61,17 +74,18 @@ void addCustomer(struct Customer customers[], int *count){
     
     customers[*count] = newCustomer;
     (*count)++;
+    saveCustomersToFile(customers, *count);
     printf("Customer added successfully!\n");
 }
 
 // Function to modify customer details
-void modifyCustomer(struct Customer customers[], int count) {
-    int id;
+void modifyCustomer(struct Customer *customers, int count) {
+    int ID;
     printf("Enter Customer ID to modify: ");
-    scanf("%d", &id);
+    scanf("%d", &ID);
     
-    for (int i = 0; i < count; i++) {
-        if (customers[i].ID == id) {
+    for (int i = 0; i < count; i++){
+        if (customers[i].ID == ID){
             printf("Enter new name: ");
             scanf("%49s", customers[i].name);
             printf("Enter new phone number: ");
@@ -87,12 +101,13 @@ void modifyCustomer(struct Customer customers[], int count) {
 }
 
 // Function to display all customers in alphabetical order
-void displayCustomers(struct Customer customers[], int count){
+void displayCustomers(struct Customer *customers, int count){
     if (count == 0){
         printf("No customers found!\n");
         return;
     }
-    
+
+//alphabetical Sorting
     for(int i=0; i<count-1; i++){
         for(int j=i+1; j<count; j++){
             if(strcmp(customers[i].name , customers[j].name)>0){
@@ -104,21 +119,19 @@ void displayCustomers(struct Customer customers[], int count){
     }
     printf("Customer List:\n");
     for (int i = 0; i < count; i++) {
-        printf("ID: %d, Name: %s, Phone: %s, VIP: %s\n", 
-               customers[i].ID, customers[i].name, customers[i].phone, 
-               customers[i].VIP? "Yes" : "No");
+        printf("ID: %d, Name: %s, Phone: %s, VIP: %s\n", customers[i].ID, customers[i].name, customers[i].phone, customers[i].VIP? "Yes" : "No");
     }
 }
 
 // Function to delete a customer
-void deleteCustomer(struct Customer customers[], int *count){
+void deleteCustomer(struct Customer *customers, int *count){
     int ID;
     printf("Enter Customer ID to delete: ");
     scanf("%d", &ID);
     
     for (int i = 0; i < *count; i++) {
         if (customers[i].ID == ID) {
-            for (int j = i; j < *count - 1; j++) {
+            for (int j = i; j < *count-1; j++) {
                 customers[j] = customers[j + 1];
             }
             (*count)--;
@@ -133,14 +146,14 @@ void deleteCustomer(struct Customer customers[], int *count){
 
 int main(){
     struct Customer customers[MAX_CUSTOMERS];
-    int customerCount=0;
+    int customerCount = loadCustomersFromFile(customers);
     
     int choice;
     do {
         printf("\nCustomer Management Menu:\n");
         printf("1. Add Customer\n");
         printf("2. Display Customers\n");
-        printf("3. Modify customer detail.\n");
+        printf("3. Modify customer details.\n");
         printf("4. Delete Customer\n");
         printf("5. Exit\n");
         printf("Enter your choice: ");
@@ -148,7 +161,7 @@ int main(){
         
         if(choice==1){
             addCustomer(customers, &customerCount);
-        }
+        }  
         if(choice == 2){
             displayCustomers(customers, customerCount);
         }
@@ -161,11 +174,7 @@ int main(){
         if(choice==5){
             printf("Exiting......\n");
         }
-        else{
-            printf("Invalid Choice");
-        }
-
     }while(choice!=5);  
 
-   
+    return 0;   
 }
