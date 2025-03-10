@@ -28,7 +28,6 @@
 #define MAX_CUSTOMERS 10000
 #define MAX_TABLE 500
 #define MAX_RESERVATIONS 1000
-
 #define CUSTOMER_FILE "customers.txt"
 #define TABLE_FILE "Table.txt"
 #define RESERVATION_FILE "reservations.txt"
@@ -57,50 +56,48 @@ struct Reservation {
     char time[10];      // Reservation time (HH:MM)
 };
 
-void extractDateComponents(char *date, int *year, int *month, int *day) {
+//Procedure to Extrate Date
+void extrate_date(char *date, int *year, int *month, int *day) {
   sscanf(date, "%d-%d-%d", year, month, day);
 }
 
 
-// Validate if the given date is in the future
+// Function to validate date input
 int isValidDate(char *date) {
     int inputYear, inputMonth, inputDay;
     int currentYear, currentMonth, currentDay;
     
-    extractDateComponents(date, &inputYear, &inputMonth, &inputDay);
+    extrate_date(date, &inputYear, &inputMonth, &inputDay);
     
     if (inputYear < currentYear) return 0;
-    if (inputYear == currentYear && inputMonth < currentMonth) return 0;
-    if (inputYear == currentYear && inputMonth == currentMonth && inputDay < currentDay) return 0;
+    if (inputYear == currentYear && inputMonth<currentMonth) return 0;
+    if (inputYear == currentYear && inputMonth==currentMonth && inputDay<currentDay) return 0;
     
-    return 1; // Date is valid
+    return 1; 
   }
   
-
-// -----------------------------------------------
 // Customer Management Functions
-// -----------------------------------------------
 
-// Save customers to file
-void saveCustomersToFile(struct Customer *customers, int count) {
+// To Save customers to file
+void saveCustomersToFile(struct Customer *customers, int count){
     FILE *file = fopen(CUSTOMER_FILE, "w");
-    if (!file) {
+    if (!file){
         printf("Error opening customer file for writing!\n");
         return;
     }
-    for (int i = 0; i < count; i++) {
-        fprintf(file, "%d %s %s %d\n", customers[i].ID, customers[i].name, customers[i].phone, customers[i].VIP);
+    for(int i=0; i < count; i++){
+        fprintf(file, "%d %s %s %d\n", customers[i].ID,customers[i].name,customers[i].phone,customers[i].VIP);
     }
     fclose(file);
 }
 
-// Load customers from file; returns number of customers loaded
-int loadCustomersFromFile(struct Customer *customers) {
-    FILE *file = fopen(CUSTOMER_FILE, "r");
-    if (!file) return 0;
+// Load customers from file
+int loadCustomersFromFile(struct Customer *customers){
+    FILE *file=fopen(CUSTOMER_FILE, "r");
+    if(!file)return 0;
 
     int count = 0;
-    while (fscanf(file, "%d %49s %14s %d", &customers[count].ID, customers[count].name, customers[count].phone, &customers[count].VIP) == 4) {
+    while(fscanf(file,"%d %49s %14s %d", &customers[count].ID, customers[count].name, customers[count].phone, &customers[count].VIP)==4){
         count++;
     }
     fclose(file);
@@ -108,8 +105,8 @@ int loadCustomersFromFile(struct Customer *customers) {
 }
 
 // Add a new customer
-void addCustomer(struct Customer *customers, int *count) {
-    if (*count >= MAX_CUSTOMERS) {
+void addCustomer(struct Customer *customers, int *count){
+    if(*count>=MAX_CUSTOMERS){
         printf("Customer list is full!\n");
         return;
     }
@@ -136,7 +133,7 @@ void modifyCustomer(struct Customer *customers, int count) {
     printf("Enter Customer ID to modify: ");
     scanf("%d", &ID);
 
-    for (int i = 0; i < count; i++) {
+    for (int i=0; i < count; i++){
         if (customers[i].ID == ID) {
             printf("Enter new name: ");
             scanf("%49s", customers[i].name);
@@ -153,14 +150,14 @@ void modifyCustomer(struct Customer *customers, int count) {
 }
 
 // Delete a customer by ID
-void deleteCustomer(struct Customer *customers, int *count) {
+void deleteCustomer(struct Customer *customers, int *count){
     int ID;
     printf("Enter Customer ID to delete: ");
     scanf("%d", &ID);
 
-    for (int i = 0; i < *count; i++) {
-        if (customers[i].ID == ID) {
-            for (int j = i; j < *count - 1; j++) {
+    for(int i=0; i < *count; i++){
+        if(customers[i].ID == ID){
+            for (int j = i; j < *count - 1; j++){
                 customers[j] = customers[j + 1];
             }
             (*count)--;
@@ -173,15 +170,15 @@ void deleteCustomer(struct Customer *customers, int *count) {
 }
 
 // Display all customers sorted alphabetically by name
-void displayCustomers(struct Customer *customers, int count) {
-    if (count == 0) {
+void displayCustomers(struct Customer *customers, int count){
+    if(count == 0){
         printf("No customers found!\n");
         return;
     }
     // Bubble sort for alphabetical order
-    for (int i = 0; i < count - 1; i++) {
-        for (int j = i + 1; j < count; j++) {
-            if (strcmp(customers[i].name, customers[j].name) > 0) {
+    for(int i=0; i < count - 1; i++){
+        for(int j = i + 1; j < count; j++){
+            if (strcmp(customers[i].name, customers[j].name) > 0){
                 struct Customer temp = customers[i];
                 customers[i] = customers[j];
                 customers[j] = temp;
@@ -190,37 +187,37 @@ void displayCustomers(struct Customer *customers, int count) {
     }
 
     printf("Customer List:\n");
-    for (int i = 0; i < count; i++) {
+    for(int i=0; i < count; i++){
         printf("ID: %d, Name: %s, Phone: %s, VIP: %s\n", 
                customers[i].ID, customers[i].name, customers[i].phone, 
                customers[i].VIP ? "Yes" : "No");
     }
 }
 
-// -----------------------------------------------
+
 // Table Management Functions
-// -----------------------------------------------
+
 
 // Save table data to file
-void saveTableFile(struct Table *table, int count) {
+void saveTableFile(struct Table *table, int count){
     FILE *file = fopen(TABLE_FILE, "w");
-    if (!file) {
+    if (!file){
         printf("Error opening table file for writing!\n");
         return;
     }
-    for (int i = 0; i < count; i++) {
+    for(int i=0; i < count; i++){
         fprintf(file, "%d %d %s %d\n", table[i].tableID, table[i].capacity, table[i].name, table[i].Availablity);
     }
     fclose(file);
 }
 
 // Load table data from file; returns number of tables loaded
-int loadTable(struct Table *table) {
+int loadTable(struct Table *table){
     FILE *file = fopen(TABLE_FILE, "r");
-    if (!file) return 0;
+    if(!file) return 0;
 
     int count = 0;
-    while (fscanf(file, "%d %d %29s %d", &table[count].tableID, &table[count].capacity, table[count].name, &table[count].Availablity) == 4) {
+    while(fscanf(file, "%d %d %29s %d", &table[count].tableID, &table[count].capacity, table[count].name, &table[count].Availablity) == 4){
         count++;
     }
     fclose(file);
@@ -228,8 +225,8 @@ int loadTable(struct Table *table) {
 }
 
 // Add a new table
-void addTable(struct Table *table, int *count) {
-    if (*count >= MAX_TABLE) {
+void addTable(struct Table *table, int *count){
+    if(*count >= MAX_TABLE){
         printf("No more space for new tables!\n");
         return;
     }
@@ -249,13 +246,13 @@ void addTable(struct Table *table, int *count) {
 }
 
 // Modify table details by table ID
-void modifyTable(struct Table *table, int count) {
+void modifyTable(struct Table *table, int count){
     int T_ID;
     printf("Enter Table ID to modify: ");
     scanf("%d", &T_ID);
 
-    for (int i = 0; i < count; i++) {
-        if (table[i].tableID == T_ID) {
+    for(int i=0; i < count; i++){
+        if(table[i].tableID == T_ID) {
             printf("Enter new Capacity: ");
             scanf("%d", &table[i].capacity);
             printf("Enter new Table Name: ");
@@ -269,14 +266,14 @@ void modifyTable(struct Table *table, int count) {
 }
 
 // Delete a table by ID
-void deleteTable(struct Table *table, int *count) {
+void deleteTable(struct Table *table, int *count){
     int T_ID;
     printf("Enter Table ID to delete: ");
     scanf("%d", &T_ID);
 
-    for (int i = 0; i < *count; i++) {
-        if (table[i].tableID == T_ID) {
-            for (int j = i; j < *count - 1; j++) {
+    for(int i=0; i < *count; i++){
+        if(table[i].tableID == T_ID) {
+            for(int j = i; j < *count - 1; j++){
                 table[j] = table[j + 1];
             }
             (*count)--;
@@ -289,49 +286,44 @@ void deleteTable(struct Table *table, int *count) {
 }
 
 // Display all tables with their availability status
-void displayTables(struct Table *table, int count) {
-    if (count == 0) {
+void displayTables(struct Table *table, int count){
+    if(count==0){
         printf("No tables found!\n");
         return;
     }
 
     printf("Table List:\n");
-    for (int i = 0; i < count; i++) {
+    for(int i=0; i < count; i++){
         printf("ID: %d, Capacity: %d, Name: %s, Status: %s\n", 
                table[i].tableID, table[i].capacity, table[i].name, 
                table[i].Availablity ? "Available" : "Reserved");
     }
 }
 
-// -----------------------------------------------
 // Reservation Management Functions
-// -----------------------------------------------
 
 // Save reservations to file
-void saveReservationsToFile(struct Reservation *reservations, int count) {
-    FILE *file = fopen(RESERVATION_FILE, "w");
-    if (!file) {
+void saveReservationsToFile(struct Reservation *reservations, int count){
+    FILE *file = fopen(RESERVATION_FILE,"w");
+    if(!file){
         printf("Error opening reservation file for writing!\n");
         return;
     }
-    for (int i = 0; i < count; i++) {
+    for(int i=0; i < count; i++){
         fprintf(file, "%d %d %d %s %s\n", 
-                reservations[i].reservationID, reservations[i].customerID, 
-                reservations[i].tableID, reservations[i].date, reservations[i].time);
+                reservations[i].reservationID, reservations[i].customerID, reservations[i].tableID, reservations[i].date, reservations[i].time);
     }
     fclose(file);
 }
 
 // Load reservations from file; returns number of reservations loaded
-int loadReservationsFromFile(struct Reservation *reservations) {
+int loadReservationsFromFile(struct Reservation *reservations){
     FILE *file = fopen(RESERVATION_FILE, "r");
-    if (!file) return 0;
+    if(!file) return 0;
 
     int count = 0;
     while (fscanf(file, "%d %d %d %14s %9s", 
-                  &reservations[count].reservationID, &reservations[count].customerID, 
-                  &reservations[count].tableID, reservations[count].date, 
-                  reservations[count].time) == 5) {
+                  &reservations[count].reservationID, &reservations[count].customerID, &reservations[count].tableID, reservations[count].date, reservations[count].time) == 5) {
         count++;
     }
     fclose(file);
@@ -339,10 +331,8 @@ int loadReservationsFromFile(struct Reservation *reservations) {
 }
 
 // Book a table by creating a new reservation
-void addReservation(struct Reservation *reservations, int *resCount, 
-                    struct Customer *customers, int custCount, 
-                    struct Table *tables, int tableCount) {
-    if (*resCount >= MAX_RESERVATIONS) {
+void addReservation(struct Reservation *reservations, int *resCount, struct Customer *customers, int custCount, struct Table *tables, int tableCount){
+    if (*resCount >= MAX_RESERVATIONS){
         printf("Reservation list is full!\n");
         return;
     }
@@ -354,13 +344,13 @@ void addReservation(struct Reservation *reservations, int *resCount,
     scanf("%d", &custID);
     // Verify customer exists
     int custFound = 0;
-    for (int i = 0; i < custCount; i++) {
-        if (customers[i].ID == custID) {
+    for (int i=0; i < custCount; i++){
+        if(customers[i].ID == custID){
             custFound = 1;
             break;
         }
     }
-    if (!custFound) {
+    if(!custFound){
         printf("Customer ID not found!\n");
         return;
     }
@@ -369,36 +359,35 @@ void addReservation(struct Reservation *reservations, int *resCount,
     scanf("%d", &tableID);
     // Check table existence and availability
     int tableIndex = -1;
-    for (int i = 0; i < tableCount; i++) {
-        if (tables[i].tableID == tableID) {
+    for(int i=0; i < tableCount; i++){
+        if(tables[i].tableID == tableID){
             tableIndex = i;
             break;
         }
     }
-    if (tableIndex == -1) {
+    if(tableIndex==-1){
         printf("Table ID not found!\n");
         return;
     }
-    if (tables[tableIndex].Availablity == 0) {
+    if(tables[tableIndex].Availablity==0){
         printf("Selected table is already reserved. Overbooking prevented!\n");
         return;
     }
     
-    do {
+    do{
       printf("Enter Reservation Date (YYYY-MM-DD): ");
       scanf("%14s", date);
       
-      if (!isValidDate(date)) {
-          printf("Invalid date! Please enter a future date.\n");
-      }
-    } while (!isValidDate(date));
+      if(!isValidDate(date)) printf("Invalid date! Please enter a future date.\n");
+      
+    } while(!isValidDate(date));
 
   printf("Enter Reservation Time (HH:MM): ");
   scanf("%9s", time);
     struct Reservation newRes;
     newRes.reservationID = (*resCount > 0) ? reservations[*resCount - 1].reservationID + 1 : 1;
-    newRes.customerID = custID;
-    newRes.tableID = tableID;
+    newRes.customerID=custID;
+    newRes.tableID=tableID;
     strcpy(newRes.date, date);
     strcpy(newRes.time, time);
 
@@ -409,29 +398,27 @@ void addReservation(struct Reservation *reservations, int *resCount,
     tables[tableIndex].Availablity = 0;
     saveTableFile(tables, tableCount);
     saveReservationsToFile(reservations, *resCount);
-
     printf("Reservation booked successfully! Reservation ID: %d\n", newRes.reservationID);
 }
 
 // Cancel a reservation by reservation ID and free the table
-void cancelReservation(struct Reservation *reservations, int *resCount, 
-                       struct Table *tables, int tableCount) {
+void cancelReservation(struct Reservation *reservations, int *resCount, struct Table *tables, int tableCount) {
     int resID;
     printf("Enter Reservation ID to cancel: ");
     scanf("%d", &resID);
 
     int found = 0;
-    for (int i = 0; i < *resCount; i++) {
-        if (reservations[i].reservationID == resID) {
+    for(int i=0; i<*resCount; i++){
+        if(reservations[i].reservationID == resID){
             found = 1;
             int tableID = reservations[i].tableID;
-            for (int j = 0; j < tableCount; j++) {
-                if (tables[j].tableID == tableID) {
+            for(int j = 0; j < tableCount; j++){
+                if(tables[j].tableID == tableID){
                     tables[j].Availablity = 1;
                     break;
                 }
             }
-            for (int j = i; j < *resCount - 1; j++) {
+            for(int j = i; j < *resCount - 1; j++){
                 reservations[j] = reservations[j + 1];
             }
             (*resCount)--;
@@ -441,20 +428,20 @@ void cancelReservation(struct Reservation *reservations, int *resCount,
             break;
         }
     }
-    if (!found) {
+    if(!found){
         printf("Reservation ID not found!\n");
     }
 }
 
 // Display all reservations
-void displayReservations(struct Reservation *reservations, int resCount) {
-    if (resCount == 0) {
+void displayReservations(struct Reservation *reservations, int resCount){
+    if (resCount == 0){
         printf("No reservations found!\n");
         return;
     }
 
     printf("Reservation List:\n");
-    for (int i = 0; i < resCount; i++) {
+    for (int i=0; i < resCount; i++){
         printf("Reservation ID: %d, Customer ID: %d, Table ID: %d, Date: %s, Time: %s\n", 
                reservations[i].reservationID, reservations[i].customerID, 
                reservations[i].tableID, reservations[i].date, reservations[i].time);
@@ -464,15 +451,15 @@ void displayReservations(struct Reservation *reservations, int resCount) {
 // Display customers who have reservations
 void displayCustomersWithReservations(struct Reservation *reservations, int resCount, 
                                       struct Customer *customers, int custCount) {
-    if (resCount == 0) {
+    if(resCount == 0){
         printf("No reservations to display customer information!\n");
         return;
     }
 
     printf("Customers with Reservations:\n");
-    for (int i = 0; i < resCount; i++) {
-        for (int j = 0; j < custCount; j++) {
-            if (customers[j].ID == reservations[i].customerID) {
+    for(int i=0; i < resCount; i++){
+        for(int j = 0; j < custCount; j++){
+            if(customers[j].ID == reservations[i].customerID){
                 printf("Customer ID: %d, Name: %s, Phone: %s, VIP: %s\n", 
                        customers[j].ID, customers[j].name, customers[j].phone, 
                        customers[j].VIP ? "Yes" : "No");
@@ -482,23 +469,21 @@ void displayCustomersWithReservations(struct Reservation *reservations, int resC
     }
 }
 
-// -----------------------------------------------
 // Main Function with Menus
-// -----------------------------------------------
 
 int main(){
     struct Customer customers[MAX_CUSTOMERS];
-    int customerCount = loadCustomersFromFile(customers);
+    int customerCount=loadCustomersFromFile(customers);
 
     struct Table table[MAX_TABLE];
-    int tableCount = loadTable(table);
+    int tableCount=loadTable(table);
 
     struct Reservation reservations[MAX_RESERVATIONS];
-    int resCount = loadReservationsFromFile(reservations);
+    int resCount=loadReservationsFromFile(reservations);
 
     int menu_choice;
 
-    do {
+    do{
         printf("\n==== Reservation System Main Menu ====\n");
         printf("0. Exit\n");
         printf("1. Customer Management\n");
@@ -507,9 +492,9 @@ int main(){
         printf("Enter your menu choice: ");
         scanf("%d", &menu_choice);
 
-        if (menu_choice == 1) {
+        if(menu_choice == 1){
             int choice;
-            do {
+            do{
                 printf("\n--- Customer Management Menu ---\n");
                 printf("1. Add Customer\n");
                 printf("2. Display Customers\n");
@@ -519,20 +504,20 @@ int main(){
                 printf("Enter your choice: ");
                 scanf("%d", &choice);
 
-                if (choice == 1)
+                if(choice == 1)
                     addCustomer(customers, &customerCount);
-                else if (choice == 2)
+                else if(choice == 2)
                     displayCustomers(customers, customerCount);
-                else if (choice == 3)
+                else if(choice == 3)
                     modifyCustomer(customers, customerCount);
-                else if (choice == 4)
+                else if(choice == 4)
                     deleteCustomer(customers, &customerCount);
-                else if (choice != 5)
+                else if(choice != 5)
                     printf("Invalid choice! Please try again.\n");
-            } while (choice != 5);
-        } else if (menu_choice == 2) {
+            } while(choice != 5);
+        }else if(menu_choice == 2){
             int choice_T;
-            do {
+            do{
                 printf("\n--- Table Management Menu ---\n");
                 printf("1. Add Table\n");
                 printf("2. Display Tables\n");
@@ -542,20 +527,20 @@ int main(){
                 printf("Enter your choice: ");
                 scanf("%d", &choice_T);
 
-                if (choice_T == 1)
+                if(choice_T == 1)
                     addTable(table, &tableCount);
-                else if (choice_T == 2)
+                else if(choice_T == 2)
                     displayTables(table, tableCount);
-                else if (choice_T == 3)
+                else if(choice_T == 3)
                     modifyTable(table, tableCount);
-                else if (choice_T == 4)
+                else if(choice_T == 4)
                     deleteTable(table, &tableCount);
-                else if (choice_T != 5)
+                else if(choice_T != 5)
                     printf("Invalid choice! Please try again.\n");
-            } while (choice_T != 5);
-        } else if (menu_choice == 3) {
+            }while(choice_T != 5);
+        }else if(menu_choice == 3){
             int choice_R;
-            do {
+            do{
                 printf("\n--- Reservation Management Menu ---\n");
                 printf("1. Book a Table (Add Reservation)\n");
                 printf("2. Cancel a Reservation\n");
@@ -565,15 +550,15 @@ int main(){
                 printf("Enter your choice: ");
                 scanf("%d", &choice_R);
 
-                if (choice_R == 1)
+                if(choice_R == 1)
                     addReservation(reservations, &resCount, customers, customerCount, table, tableCount);
-                else if (choice_R == 2)
+                else if(choice_R == 2)
                     cancelReservation(reservations, &resCount, table, tableCount);
-                else if (choice_R == 3)
+                else if(choice_R == 3)
                     displayReservations(reservations, resCount);
-                else if (choice_R == 4)
+                else if(choice_R == 4)
                     displayCustomersWithReservations(reservations, resCount, customers, customerCount);
-                else if (choice_R != 5)
+                else if(choice_R != 5)
                     printf("Invalid choice! Please try again.\n");
             }while(choice_R != 5);
         }
@@ -584,6 +569,5 @@ int main(){
             printf("Invalid menu choice! Please try again.\n");
         }
     }while(menu_choice != 0);
-
     return 0;
 }
